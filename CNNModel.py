@@ -226,6 +226,7 @@ class CNNKernel(Layer):
       )
     self.kernel_activation = tf.keras.activations.sigmoid
 
+
   def build(self, input_shape):
     pass
 
@@ -288,6 +289,7 @@ class FullCNNModel(Model):
     self.n_kernel_last_det_evts = (self.kernel_distance**2-1)//2
     self.nshifts = self.code_distance - self.kernel_distance + 1
     self.rounds = rounds
+    self.hidden_specs = hidden_specs
     self.npol = npol
     self.do_all_data_qubits = do_all_data_qubits
     self.extended_kernel_output = extended_kernel_output
@@ -471,6 +473,25 @@ class FullCNNModel(Model):
       data_qubit_final_preds = data_qubit_final_preds + tf.repeat(self.nonuniform_response_adj, data_qubit_final_preds.shape[0], axis=0)
     return self.data_qubit_pred_eval_layer(data_qubit_final_preds)
 
+  def get_config(self):
+    config = super(FullCNNModel, self).get_config()
+    config.update({
+      'obs_type': self.obs_type,
+      'code_distance': self.code_distance,
+      'kernel_distance': self.kernel_distance,
+      'rounds': self.rounds,
+      'hidden_specs': self.hidden_specs
+      # 'npol': self.npol,
+      # 'do_all_data_qubits': self.do_all_data_qubits,
+      # 'extended_kernel_output': self.extended_kernel_output,
+      # 'include_det_evts': self.include_det_evts,
+      # 'include_last_kernel_dets': self.include_last_kernel_dets,
+      # 'include_last_dets': self.include_last_dets,
+      # 'has_nonuniform_response': self.has_nonuniform_response,
+      # 'use_translated_kernels': self.use_translated_kernels,
+      # 'KernelProcessor': self.KernelProcessor
+    })
+    return config
 
   def call(self, all_inputs):
     det_bits = all_inputs[0]
